@@ -266,8 +266,9 @@ def main() -> None:
     ap.add_argument("--port", type=int, default=4820, help="web/WebSocket (TCP) port for the tablet (default 4820)")
     ap.add_argument("--reaper-host", default="127.0.0.1", help="host running REAPER (default 127.0.0.1)")
     ap.add_argument("--reaper-port", type=int, default=4821, help="REAPER OSC (UDP) listen port (default 4821)")
-    ap.add_argument("--channel-base", type=int, default=1, choices=(0, 1),
-                    help="how REAPER numbers the channel in /vkb_midi/<ch>/: 1 = 1-16 (default), 0 = 0-15")
+    # REAPER's /vkb_midi/<ch>/ counts channels from 0 (0 = MIDI channel 1), verified in REAPER.
+    ap.add_argument("--channel-base", type=int, default=0, choices=(0, 1),
+                    help="how REAPER numbers the channel in /vkb_midi/<ch>/: 0 = 0-15 (default, REAPER), 1 = 1-16")
     ap.add_argument("--test", action="store_true", help="send a CC1 sweep to REAPER and exit")
     args = ap.parse_args()
 

@@ -90,7 +90,7 @@ Open one of these on the tablet (same Wi-Fi):
 - **First run:** Windows Firewall asks about Python — allow it for the network profile your Wi‑Fi uses
   (Public or Private), or the tablet can't reach the PC.
 - **Check REAPER without the tablet:** `python bridge.py --test` sweeps CC1 on channel 1 — record on an
-  armed track and you should see a ramp. If it lands on channel 2, run the bridge with `--channel-base 0`.
+  armed track and you should see a ramp on channel 1.
 
 ### 3. The tablet
 
@@ -306,7 +306,7 @@ Everything is saved on the tablet (browser storage) and survives restarts of the
 ### Bridge options
 
 ```
-python bridge.py [--port 4820] [--reaper-host 127.0.0.1] [--reaper-port 4821] [--channel-base 1] [--test]
+python bridge.py [--port 4820] [--reaper-host 127.0.0.1] [--reaper-port 4821] [--channel-base 0] [--test]
 ```
 
 | Option | Default | Meaning |
@@ -314,7 +314,7 @@ python bridge.py [--port 4820] [--reaper-host 127.0.0.1] [--reaper-port 4821] [-
 | `--port` | 4820 | TCP port the tablet connects to (page + WebSocket) |
 | `--reaper-host` | 127.0.0.1 | Machine running REAPER |
 | `--reaper-port` | 4821 | UDP port of REAPER's OSC control surface — must match REAPER |
-| `--channel-base` | 1 | How REAPER numbers channels in OSC: `1` = 1–16, `0` = 0–15 |
+| `--channel-base` | 0 | How the channel is numbered in REAPER's OSC messages: `0` = 0–15 (REAPER), `1` = 1–16 |
 | `--test` | | Send a CC1 sweep to REAPER and exit |
 
 ### Ports
@@ -356,7 +356,7 @@ pitch bend it was holding — no stuck notes.
 | Badge says *offline* | The bridge isn't running or restarted; the page reconnects by itself. |
 | Badge shows ms but REAPER doesn't react | OSC surface on port 4821? Track input = Virtual MIDI Keyboard (right channel), armed and monitoring? Try `python bridge.py --test`. |
 | The plugin's mod wheel moves but the sound doesn't change | The patch doesn't use the mod wheel — route it in the synth or MIDI-learn (see [Plugin guides](#plugin-guides)). |
-| Notes/CC on the wrong channel | Check the page's channel (Settings → Page); if everything is off by one, `--channel-base 0`. |
+| Notes/CC on the wrong channel | Check the page's channel (Settings → Page) and the track's input channel in REAPER. If everything is off by one, try `--channel-base 1`. |
 | Stuck note or pedal | Tap **Panic**. |
 | Jittery / laggy | 5 GHz Wi‑Fi, tablet near the router, Low Power Mode off. The badge shows the round trip. |
 
