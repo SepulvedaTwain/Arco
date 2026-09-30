@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+web/_shot.html
+.DS_Store
+Thumbs.db

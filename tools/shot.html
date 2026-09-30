@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html, body { margin: 0; height: 100%; overflow: hidden; background: #0a0c10; } iframe { border: 0; width: 100%; height: 100%; display: block; }</style>
+</head>
+<body>
+<script type="module">
+// Screenshot harness for the README (not part of the app; tools/screenshots.ps1 copies it into
+// web/ only while capturing). Sets up a scene, loads the app in a frame, then pokes it
+// (hold keys, open menus…) so headless Edge can capture it.
+import { defaults } from "/js/store.js";
+
+const scene = new URLSearchParams(location.search).get("s") || "hero";
+const s = defaults();
+const [def, sso, serum, sd3] = s.profiles;
+
+const setPos = (p, bank, values) => values.forEach((v, i) => { if (p.banks[bank].faders[i]) p.banks[bank].faders[i].pos = v; });
+setPos(def, 0, [0.72, 0.55, 0.34]);
+def.banks[0].snapshots[0] = [0.4, 0.6, 0.2];
+def.banks[0].snapshots[1] = [0.9, 0.8, 0.5];
+def.layout.keysHeight = 260;
+setPos(sso, 0, [0.64, 0.8, 0.45]);
+sso.layout.keyWidth = 20;
+sso.layout.keyScroll = 0;
+sso.layout.keysHeight = 200;
+sso.layout.padsHeight = 170;
+setPos(serum, 0, [0.35, 0.7, 0.52, 0.2]);
+serum.perform.bendModPad = true;
+serum.perform.mod = 0.42;
+serum.perform.xy.x = 0.7;
+serum.perform.xy.y = 0.62;
+serum.perform.xy.xlabel = "Cutoff · CC28";
+serum.perform.xy.ylabel = "Resonance · CC29";
+sd3.drums.repeat = true;
+
+s.profile = { hero: 0, graphite: 0, menu: 0, layout: 0, sso: 1, artic: 1, serum: 2, sd3: 3 }[scene] ?? 0;
+if (scene === "graphite") s.theme = "graphite";
+localStorage.setItem("arco-settings", JSON.stringify(s));
+
+const f = document.createElement("iframe");
+f.src = "/";
+document.body.append(f);
+f.onload = () => setTimeout(() => act(f.contentWindow, f.contentDocument), 700);
+
+function press(win, doc, el, id, where = 0.8) {
+  const r = el.getBoundingClientRect();
+  el.dispatchEvent(new win.PointerEvent("pointerdown", { bubbles: true, cancelable: true, pointerId: id, pointerType: "touch",
+    clientX: r.left + r.width / 2, clientY: r.top + r.height * where }));
+}
+function holdKeys(win, doc, notes) {
+  notes.forEach((n, i) => press(win, doc, doc.querySelector(`#keyStrip [data-note="${n}"]`), 100 + i, 0.9));
+}
+
+function act(win, doc) {
+  const $ = (sel) => doc.querySelector(sel);
+  if (scene === "hero" || scene === "graphite") holdKeys(win, doc, [60, 64, 67, 71]);
+  if (scene === "sso") {
+    press(win, doc, doc.querySelectorAll("#pads .pad")[16], 90);
+    holdKeys(win, doc, [67, 74]);
+  }
+  if (scene === "menu") $("#btnPage").click();
+  if (scene === "layout") $("#btnLayout").click();
+  if (scene === "artic") {
+    $("#btnSettings").click();
+    setTimeout(() => doc.querySelector('[data-tab="artic"]').click(), 100);
+  }
+  if (scene === "sd3") press(win, doc, doc.querySelectorAll(".drum-pad")[13], 90, 0.7);
+}
+</script>
+</body>
+</html>

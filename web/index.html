@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en" data-theme="midnight">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Arco">
+  <meta name="theme-color" content="#0a0c10">
+  <title>Arco</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div id="app">
+    <header id="topbar" class="section" data-section="header">
+      <div class="brand"><span class="brand-mark"></span><span class="brand-name">Arco</span></div>
+      <button class="page-btn" id="btnPage" aria-haspopup="menu" title="Switch instrument page">
+        <span class="page-name"></span><span class="page-ch"></span>
+      </button>
+      <div id="pageMenu" class="menu" role="menu" hidden></div>
+      <div id="conn" class="pill" title="Connection to the PC bridge"><span class="dot"></span><span class="text">offline</span></div>
+      <div id="activity" class="pill mono" title="Last MIDI message sent"><span class="dot"></span><span class="text">—</span></div>
+      <span class="spacer"></span>
+      <button class="icon-btn" id="btnLayout" data-icon="layout" aria-pressed="false" title="Layout mode: pinch to resize"></button>
+      <button class="icon-btn" id="btnKeys" data-icon="keys" aria-pressed="true" title="Show / hide keyboard"></button>
+      <button class="icon-btn" id="btnFull" data-icon="fullscreen" title="Fullscreen"></button>
+      <button class="icon-btn" id="btnSettings" data-icon="settings" title="Settings"></button>
+      <div class="section-hint"><span>Pinch here · interface size</span></div>
+    </header>
+
+    <div id="layoutBanner">
+      <strong>Layout mode</strong>
+      <span class="banner-text">Pinch a section to resize it · drag the keyboard to scroll</span>
+      <span class="spacer"></span>
+      <div class="seg" id="sectionToggles">
+        <button data-sec="faders">Faders</button><button data-sec="pads">Artic.</button><button data-sec="perform">Perform</button><button data-sec="drums">Drums</button><button data-sec="keys">Keys</button>
+      </div>
+      <div class="seg" id="bendModToggle" title="Pitch bend + mod wheel as two strips, or one XY pad">
+        <button data-v="strips">Bend/Mod strips</button><button data-v="pad">Bend/Mod pad</button>
+      </div>
+      <button class="chip" id="btnResetLayout">Reset</button>
+      <button class="chip primary" id="btnLayoutDone">Done</button>
+    </div>
+
+    <section id="secFaders" class="section" data-section="faders">
+      <div class="toolbar">
+        <span class="label">Bank</span>
+        <div class="seg" id="banks"></div>
+        <span class="label">Snapshots</span>
+        <div class="seg" id="snaps"></div>
+        <span class="spacer"></span>
+        <button class="chip" id="btnFine" aria-pressed="false" title="Fine: faders move at ¼ speed">Fine</button>
+      </div>
+      <div id="faders"></div>
+      <div class="section-hint"><span>Pinch ↔ fader width · ↕ fader height</span></div>
+    </section>
+
+    <section id="secPads" class="section" data-section="pads">
+      <div class="seg scroll-seg" id="articSets"></div>
+      <div id="pads"></div>
+      <div class="section-hint"><span>Pinch ↕ height · more rows appear as it grows</span></div>
+    </section>
+
+    <section id="secPerform" class="section" data-section="perform">
+      <div id="perform"></div>
+      <div class="section-hint"><span>Pinch ↕ height</span></div>
+    </section>
+
+    <section id="secDrums" class="section" data-section="drums">
+      <div class="toolbar">
+        <button class="chip" id="btnRepeat" data-icon="repeat" aria-pressed="false" title="Note repeat: held pads retrigger in time"><span class="chip-text">Repeat</span></button>
+        <select id="repeatRate" class="chip-select" aria-label="Repeat rate"></select>
+        <button class="icon-btn" id="bpmDown" data-icon="left" aria-label="Tempo down"></button>
+        <input type="number" id="bpm" class="chip-input mono" min="30" max="300" aria-label="Tempo (BPM)">
+        <span class="label">BPM</span>
+        <button class="icon-btn" id="bpmUp" data-icon="right" aria-label="Tempo up"></button>
+      </div>
+      <div class="drum-area">
+        <div class="strip hh" id="hhStrip"><div class="strip-fill"></div><span class="strip-label">Hi-hat</span></div>
+        <div id="drumGrid"></div>
+      </div>
+      <div class="section-hint"><span>Pinch ↕ height</span></div>
+    </section>
+
+    <section id="secKeys" class="section" data-section="keys">
+      <div class="toolbar">
+        <button class="icon-btn" id="octDown" data-icon="left" aria-label="Octave down"></button>
+        <span id="range" class="mono"></span>
+        <button class="icon-btn" id="octUp" data-icon="right" aria-label="Octave up"></button>
+        <button class="chip" id="btnScale" data-icon="scale" aria-pressed="false"><span class="chip-text">Scale</span></button>
+        <span class="spacer"></span>
+        <button class="chip" id="btnSustain" data-icon="pedal" aria-pressed="false" title="Sustain pedal (CC64)"><span class="chip-text">Sustain</span></button>
+        <button class="chip danger" id="btnPanic" data-icon="panic" title="All notes off"><span class="chip-text">Panic</span></button>
+      </div>
+      <div id="keys"><div id="keyStrip"></div></div>
+      <div class="section-hint"><span>Pinch ↔ key size · ↕ keyboard height · drag to scroll</span></div>
+    </section>
+  </div>
+
+  <dialog id="settings"></dialog>
+  <dialog id="quick"></dialog>
+  <div id="toast" role="status"></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
