@@ -84,6 +84,7 @@ function draw(f) {
 }
 
 export function renderFaders() {
+  held.clear(); // the old fader elements (and their gestures) are gone
   root.innerHTML = "";
   for (const f of bank().faders) {
     const el = document.createElement("div");
@@ -126,14 +127,20 @@ export function renderFaders() {
   setPressed(fineBtn, state.fine);
 }
 
+// Faders currently under a finger. Each finger owns the fader it touches: a linked drag never
+// moves a fader another finger is holding (otherwise both drags write it in turn and the CC
+// zigzags between two values — visible as a jagged lane when recording).
+const held = new Set();
+
 function attachDrag(track, f) {
   let drag = null;
 
   track.addEventListener("pointerdown", (e) => {
     if (isLayoutMode() || drag) return;
-    track.setPointerCapture(e.pointerId);
+    try { track.setPointerCapture(e.pointerId); } catch {} // not every pointer can be captured
     track.classList.add("active");
-    const group = f.linked ? bank().faders.filter((g) => g.linked) : [f];
+    held.add(f);
+    const group = f.linked ? bank().faders.filter((g) => g.linked && (g === f || !held.has(g))) : [f];
     drag = { id: e.pointerId, y: e.clientY, starts: new Map(group.map((g) => [g, g.pos])) };
     for (const g of group) runtime(g).morph = null;
     if (!state.relative) move(e);
@@ -145,6 +152,11 @@ function attachDrag(track, f) {
       ? ((drag.y - e.clientY) / rect.height) * (state.fine ? 0.25 : 1)
       : (rect.bottom - e.clientY) / rect.height - drag.starts.get(f);
     for (const [g, start] of drag.starts) {
+      // Another finger grabbed this linked fader: it's theirs now, for the rest of this gesture.
+      if (g !== f && held.has(g)) {
+        drag.starts.delete(g);
+        continue;
+      }
       g.pos = clamp(start + delta, 0, 1);
       draw(g);
       schedule(g);
@@ -157,6 +169,7 @@ function attachDrag(track, f) {
   const end = (e) => {
     if (!drag || e.pointerId !== drag.id) return;
     drag = null;
+    held.delete(f);
     track.classList.remove("active");
     save();
   };
